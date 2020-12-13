@@ -15,7 +15,7 @@ For multiple threads, rebuild the binary:
 
 ```
 T=-DTHREADS=$(sysctl -a | grep machdep.cpu.core_count | awk '{print $2}')
-make arm CFLAGS=T || make intel CFLAGS=T
+make arm CFLAGS=$T || make intel CFLAGS=$T
 ./bench
 ```
 
