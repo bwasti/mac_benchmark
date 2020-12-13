@@ -4,6 +4,10 @@
 #include "xbyak.h"
 #endif
 
+#ifdef THREADS
+#include <thread>
+#endif
+
 int main() {
 #ifdef __aarch64__
   using namespace Xbyak_aarch64;
@@ -64,13 +68,37 @@ int main() {
   for (auto i = 0; i < warmup; ++i) {
     f();
   }
+
+#ifdef THREADS
+  std::vector<std::thread> threads;
+  threads.reserve(THREADS);
+  auto start = std::chrono::steady_clock::now();
+  for (auto i = 0; i < THREADS; ++i) {
+    threads.emplace_back([&]() {
+      for (auto i = 0; i < iters; ++i) {
+        f();
+      }
+    });
+  }
+  for (auto i = 0; i < THREADS; ++i) {
+    threads.at(i).join();
+  }
+  iters *= THREADS;
+#else
   auto start = std::chrono::steady_clock::now();
   for (auto i = 0; i < iters; ++i) {
     f();
   }
+#endif
+
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;
   double gflops = (double)flops_per_instr * instrs_per_fn * iters /
                   ((double)elapsed_seconds.count() * 1e9);
+#ifdef THREADS
+  std::cout << "achieved : " << gflops << " gflops on " << THREADS
+            << " threads\n";
+#else
   std::cout << "achieved : " << gflops << " gflops on a single core\n";
+#endif
 }
