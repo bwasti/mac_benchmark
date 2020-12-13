@@ -1,6 +1,7 @@
 #ifdef __aarch64__
 #include "xbyak_aarch64.h"
 #else
+#include "xbyak.h"
 #endif
 
 int main() {
@@ -35,6 +36,25 @@ int main() {
 	code.ret();
 	code.setProtectModeRE();
 #else
+	using namespace Xbyak;
+  constexpr size_t flops_per_instr = 16;
+  constexpr size_t independent_calls = (16/ 2);
+  constexpr size_t block_calls = 100;
+  constexpr size_t instrs_per_fn = independent_calls * block_calls;
+
+  CodeGenerator code;
+  // zero 16 registers
+	for (auto i = 0; i < 16; ++i) {
+		code.vxorps(Xmm(i), Xmm(i), Xmm(i));
+	}
+	// invoke FMAs
+  for (auto i = 0; i < block_calls; ++i) {
+    for (auto reg = 0; reg < independent_calls; ++reg) {
+      code.vfmadd132ps(Ymm(reg), Ymm(reg + 1), Ymm(reg + 1));
+    }
+  }
+	code.ret();
+	code.setProtectModeRE();
 #endif
 
 	void(*f)() = code.getCode<void(*)()>();
