@@ -16,7 +16,7 @@ Results collected so far:
 Hardware | Chip | GFLOPs 
 --- | --- | ---
 2020 Macbook Air | M1 | 91
-2019 Macbook Pro | 2.4 GHz 8-Core Intel Core i9 | 135
+2019 16" Macbook Pro | 2.4 GHz 8-Core Intel Core i9 | 135
 
 ## Adding More Results
 
