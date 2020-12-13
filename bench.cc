@@ -6,6 +6,7 @@
 
 #ifdef THREADS
 #include <thread>
+#include <vector>
 #endif
 
 int main() {
